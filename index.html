@@ -1,22 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio | Your Name</title>
+    <title>Portfolio | Amirul Ehsan Bin Roslan</title>
     <link rel="stylesheet" href="css/style.css">
+    <script>
+        // Check local storage for saved theme preference to prevent visual flash on load
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
 </head>
+
 <body>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container nav-container">
-            <div class="logo">Your Name</div>
-            <ul class="nav-links">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#projects">Projects</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
+            <div class="logo">Killing4fun</div>
+            <div class="nav-right">
+                <ul class="nav-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#projects">Projects</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Theme">
+                    <!-- Sun Icon (visible in dark mode) -->
+                    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path
+                            d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41">
+                        </path>
+                    </svg>
+                    <!-- Moon Icon (visible in light mode) -->
+                    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                    </svg>
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -24,7 +49,7 @@
     <section id="home" class="hero">
         <div class="container">
             <div class="hero-content">
-                <h1>Hi, I'm Your Name</h1>
+                <h1>Hi, I'm Amirul Ehsan Bin Roslan</h1>
                 <p class="hero-subtitle">Web Developer | Designer | Creator</p>
                 <a href="#projects" class="btn btn-primary">View My Work</a>
             </div>
@@ -37,7 +62,8 @@
             <h2>About Me</h2>
             <div class="about-content">
                 <p>
-                    Welcome to my portfolio! I'm a passionate developer with a love for creating beautiful and functional websites. 
+                    Welcome to my portfolio! I'm a passionate developer with a love for creating beautiful and
+                    functional websites.
                     With experience in web development, I'm dedicated to building projects that make a difference.
                 </p>
                 <div class="skills">
@@ -62,7 +88,8 @@
             <div class="projects-grid">
                 <!-- Project 1 -->
                 <div class="project-card">
-                    <div class="project-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                    <div class="project-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    </div>
                     <div class="project-info">
                         <h3>Project Title 1</h3>
                         <p>Brief description of your first project goes here.</p>
@@ -77,7 +104,8 @@
 
                 <!-- Project 2 -->
                 <div class="project-card">
-                    <div class="project-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
+                    <div class="project-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    </div>
                     <div class="project-info">
                         <h3>Project Title 2</h3>
                         <p>Brief description of your second project goes here.</p>
@@ -92,7 +120,8 @@
 
                 <!-- Project 3 -->
                 <div class="project-card">
-                    <div class="project-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
+                    <div class="project-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    </div>
                     <div class="project-info">
                         <h3>Project Title 3</h3>
                         <p>Brief description of your third project goes here.</p>
@@ -137,6 +166,104 @@
         </div>
     </footer>
 
+    <!-- Floating Audio Player -->
+    <div class="audio-player-container" id="audio-player-container">
+        <!-- Hidden audio element -->
+        <audio id="bg-music" loop>
+            <source src="music/TAKE ME.mp3" type="audio/mpeg">
+        </audio>
+
+        <!-- Floating Disc Button (collapsible trigger) -->
+        <button class="music-disc-trigger" id="music-disc-trigger" aria-label="Toggle music player">
+            <div class="disc-face" id="disc-face">
+                <img id="disc-album-art"
+                    src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&h=120&fit=crop"
+                    alt="Album Art">
+                <div class="disc-center"></div>
+            </div>
+            <!-- Bouncing visualizer bars overlay -->
+            <div class="mini-visualizer" id="mini-visualizer">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </button>
+
+        <!-- Control Panel -->
+        <div class="music-card-panel" id="music-card-panel">
+            <button class="music-close-btn" id="music-close-btn" aria-label="Close music player">&times;</button>
+
+            <!-- Album Art Header -->
+            <div class="panel-album-art-container">
+                <img id="panel-album-art" class="panel-album-art"
+                    src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300&h=300&fit=crop"
+                    alt="Album Art">
+                <!-- Visualizer overlay -->
+                <div class="panel-visualizer" id="panel-visualizer">
+                    <span class="p-bar"></span>
+                    <span class="p-bar"></span>
+                    <span class="p-bar"></span>
+                    <span class="p-bar"></span>
+                    <span class="p-bar"></span>
+                </div>
+            </div>
+
+            <!-- Song Metadata -->
+            <div class="song-details">
+                <h4 class="song-title-display" id="song-title-display">TAKE ME</h4>
+                <p class="song-artist-display">Amirul Ehsan</p>
+            </div>
+
+            <!-- Controls Row -->
+            <div class="player-controls">
+                <button class="ctrl-btn" id="ctrl-prev" aria-label="Previous Song">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <polygon points="19 20 9 12 19 4 19 20"></polygon>
+                        <line x1="5" y1="19" x2="5" y2="5"></line>
+                    </svg>
+                </button>
+                <button class="ctrl-btn play-pause-btn" id="ctrl-play-pause" aria-label="Play or Pause">
+                    <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    <svg class="pause-icon" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
+                        <rect x="6" y="4" width="4" height="16"></rect>
+                        <rect x="14" y="4" width="4" height="16"></rect>
+                    </svg>
+                </button>
+                <button class="ctrl-btn" id="ctrl-next" aria-label="Next Song">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                        <line x1="19" y1="5" x2="19" y2="19"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Volume Slider -->
+            <div class="volume-control">
+                <svg class="vol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.02" value="0.5"
+                    class="volume-slider-input" aria-label="Volume Control">
+            </div>
+
+            <!-- Playlist -->
+            <div class="playlist-container">
+                <ul class="playlist-list" id="playlist-list">
+                    <!-- Dynamic rendering in JS -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
     <script src="js/script.js"></script>
+    <script src="js/playlist.js"></script>
+    <script src="js/music.js"></script>
 </body>
+
 </html>

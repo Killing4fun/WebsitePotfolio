@@ -56,3 +56,21 @@ const observer = new IntersectionObserver(function (entries) {
 document.querySelectorAll('.project-card').forEach(card => {
     observer.observe(card);
 });
+
+// ==================== Theme Toggle ====================
+const themeToggleBtn = document.getElementById('theme-toggle');
+
+const toggleTheme = () => {
+    const isLight = document.documentElement.classList.contains('light-mode');
+    if (isLight) {
+        document.documentElement.classList.remove('light-mode');
+        localStorage.setItem('theme', 'dark');
+    } else {
+        document.documentElement.classList.add('light-mode');
+        localStorage.setItem('theme', 'light');
+    }
+};
+
+if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', toggleTheme);
+}
