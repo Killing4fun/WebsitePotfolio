@@ -74,14 +74,12 @@ const buildSideBars = () => {
     }
 };
 
-// ── AudioContext ──────────────────────────────────────────────────────────────
+// ── AudioContext (bypass on file://) ─────────────────────────────────────────
 const initAudioContext = () => {
     if (audioContextReady) return;
 
-    // file:// protocol: createMediaElementSource silences audio in most browsers.
-    // Skip the analyser; the fallback visualizer will handle the bars instead.
     if (window.location.protocol === 'file:') {
-        console.log('file:// — skipping Web Audio API to preserve sound. Using fallback visualizer.');
+        console.log('file:// — bypassing Web Audio API to preserve sound.');
         audioContextReady = true;
         analyser = null;
         return;
@@ -96,7 +94,7 @@ const initAudioContext = () => {
         analyser.connect(audioContext.destination);
         audioContextReady = true;
     } catch (e) {
-        console.warn('AudioContext init failed, using fallback visualizer:', e);
+        console.warn('AudioContext init failed:', e);
         audioContextReady = true;
         analyser = null;
     }
@@ -108,49 +106,63 @@ const resumeAudioContext = async () => {
     }
 };
 
-// ── Fallback visualizer — song-reactive using audio element properties ─────────
-// Used when Web Audio API analyser is unavailable (e.g. some file:// environments).
+// ── Simulated visualizer (wave animation when no real analyser) ───────────────
 const startSimulatedSideVis = () => {
     if (simVisAnimId) return;
     const leftBars  = Array.from(sideVisLeft.querySelectorAll('.sv-bar'));
     const rightBars = Array.from(sideVisRight.querySelectorAll('.sv-bar'));
-
-    // Smoothed per-bar amplitude targets
-    const ampL = new Float32Array(SIDE_BAR_COUNT).fill(0.04);
-    const ampR = new Float32Array(SIDE_BAR_COUNT).fill(0.04);
+    let phase = 0;
 
     const draw = () => {
         simVisAnimId = requestAnimationFrame(draw);
-        const playing = !audio.paused && !audio.ended;
+        phase += 0.08;
+
+        // Calculate a simulated beat pulse at 120 BPM (500ms per beat)
+        const beatMs = 500;
+        const timeInBeat = Date.now() % beatMs;
+        const beatPulse = Math.exp(-timeInBeat / 120); // Exponential decay (sharp attack, smooth decay)
 
         leftBars.forEach((bar, i) => {
-            // When playing: random target weighted by position (bass at bottom = taller)
+            // mi represents distance from bottom (0 at bottom, SIDE_BAR_COUNT-1 at top)
             const mi = SIDE_BAR_COUNT - 1 - i;
-            const posWeight = 0.3 + (mi / SIDE_BAR_COUNT) * 0.55;
-            const target = playing
-                ? Math.max(0.04, posWeight * (0.55 + Math.random() * 0.45))
-                : 0.04;
-            // Smooth toward target
-            ampL[i] += (target - ampL[i]) * (playing ? 0.18 : 0.06);
-            const pct = Math.min(100, Math.max(4, ampL[i] * 100));
+            const isBass = mi < 12; // Bottom 12 bars are bass
+            const wave = Math.sin(phase + mi * 0.25) * 0.35 + 0.45;
+            const noise = Math.random() * 0.12;
+
+            let val = wave + noise;
+            if (isBass) {
+                // Bass frequencies pulse strongly on the simulated kick beat
+                val += beatPulse * 0.45;
+            } else {
+                // Mid/Highs react with a slight delay/wave shift
+                val += beatPulse * 0.18 * Math.sin(phase - mi * 0.15);
+            }
+
+            const pct = Math.min(100, Math.max(4, val * 100));
             bar.style.width = pct + '%';
             const l = 35 + (pct / 100) * 25;
-            bar.style.background = `hsl(0,100%,${l}%)`;
-            bar.style.boxShadow  = pct > 75 ? `0 0 6px hsl(0,100%,${l}%)` : 'none';
+            bar.style.background  = `hsl(0,100%,${l}%)`;
+            bar.style.boxShadow   = pct > 75 ? `0 0 6px hsl(0,100%,${l}%)` : 'none';
         });
 
         rightBars.forEach((bar, i) => {
             const mi = SIDE_BAR_COUNT - 1 - i;
-            const posWeight = 0.3 + (mi / SIDE_BAR_COUNT) * 0.55;
-            const target = playing
-                ? Math.max(0.04, posWeight * (0.55 + Math.random() * 0.45))
-                : 0.04;
-            ampR[i] += (target - ampR[i]) * (playing ? 0.18 : 0.06);
-            const pct = Math.min(100, Math.max(4, ampR[i] * 100));
+            const isBass = mi < 12;
+            const wave = Math.sin(phase + mi * 0.25) * 0.35 + 0.45;
+            const noise = Math.random() * 0.12;
+
+            let val = wave + noise;
+            if (isBass) {
+                val += beatPulse * 0.45;
+            } else {
+                val += beatPulse * 0.18 * Math.sin(phase - mi * 0.15);
+            }
+
+            const pct = Math.min(100, Math.max(4, val * 100));
             bar.style.width = pct + '%';
             const l = 35 + (pct / 100) * 25;
-            bar.style.background = `hsl(0,100%,${l}%)`;
-            bar.style.boxShadow  = pct > 75 ? `0 0 6px hsl(0,100%,${l}%)` : 'none';
+            bar.style.background  = `hsl(0,100%,${l}%)`;
+            bar.style.boxShadow   = pct > 75 ? `0 0 6px hsl(0,100%,${l}%)` : 'none';
         });
     };
     draw();

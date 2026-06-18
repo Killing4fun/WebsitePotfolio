@@ -334,7 +334,7 @@ const setupGalleryFilter = () => {
 };
 
 // ==================== Form Handling (Google Sheets Integration) ====================
-const GOOGLE_SHEET_WEBAPP_URL = ''; // Paste your Google Apps Script URL here
+const GOOGLE_SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwg2OcH4T-AY04G8gxUAcSSkkPKgz0tCHhcy1pDnxuenddrmSkSJ6gZJVRsrHwVFno/exec'; // Paste your Google Apps Script URL here
 
 const initContactForm = () => {
     const contactForm = document.querySelector('.contact-form');

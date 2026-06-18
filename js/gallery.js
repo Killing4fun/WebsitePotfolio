@@ -12,7 +12,7 @@
 
 const galleryItems = [
     {
-        title: "IT Tech Magazine Cover Design",
+        title: "Magazine Cover Design Diploma Assignment",
         src: "images/magazine_cover.png",
         category: "magazine",
         type: "image"
@@ -86,7 +86,7 @@ const renderGallery = () => {
         if (item.type === 'video') {
             const videoEl = card.querySelector('video');
             card.addEventListener('mouseenter', () => {
-                videoEl.play().catch(() => {});
+                videoEl.play().catch(() => { });
             });
             card.addEventListener('mouseleave', () => {
                 videoEl.pause();
