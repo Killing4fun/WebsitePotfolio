@@ -344,41 +344,51 @@ const initContactForm = () => {
         e.preventDefault();
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
-        
         const nameVal = this.querySelector('input[type="text"]').value.trim();
         const emailVal = this.querySelector('input[type="email"]').value.trim();
         const msgVal = this.querySelector('textarea').value.trim();
 
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = `<span class="btn-spinner"></span> Sending...`;
-
-        // FIX: Send data as standard URL parameters instead of raw JSON text
+        // FIXED: Change this layout to URL parameters so Google Sheets reads 'e.parameter' flawlessly
         const urlEncodedData = new URLSearchParams();
         urlEncodedData.append('name', nameVal);
         urlEncodedData.append('email', emailVal);
         urlEncodedData.append('message', msgVal);
 
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<span class="btn-spinner"></span> Sending...`;
+
+        if (!GOOGLE_SHEET_WEBAPP_URL) {
+            setTimeout(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                showFormAlert(contactForm, 'success', 'Demo mode: Add your Google Sheets URL in js/script.js to save messages!');
+                this.reset();
+            }, 1000);
+            return;
+        }
+
         try {
             const response = await fetch(GOOGLE_SHEET_WEBAPP_URL, {
                 method: 'POST',
+                // FIXED: Changed headers to form-urlencoded to send clean properties instead of plain text strings
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: urlEncodedData.toString()
             });
-            
             const result = await response.json();
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
-            
             if (result.result === 'success') {
                 showFormAlert(contactForm, 'success', 'Message sent! I will get back to you soon.');
                 this.reset();
             } else {
                 showFormAlert(contactForm, 'error', 'Error: ' + (result.error || 'Unknown'));
             }
-        } catch (err) {
+        } catch {
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
-            showFormAlert(contactForm, 'error', 'Network error. Please try again.');
+            // FIXED: Set fallback to error status alert rather than hardcoded success note
+            showFormAlert(contactForm, 'error', 'Something went wrong. Please check your network connection.');
+            this.reset();
         }
     });
 };
