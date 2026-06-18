@@ -334,7 +334,7 @@ const setupGalleryFilter = () => {
 };
 
 // ==================== Form Handling (Google Sheets Integration) ====================
-const GOOGLE_SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxl6g_Ekl6WRQWv7OOrmkeeYKsg5YMa-ukpGl8DAivYSCC3RkvNW_W8SV2qHlFcDbKj/exec'; // Paste your Google Apps Script URL here
+const GOOGLE_SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxmhoSoKlQ7yTv8REjNLIIZqCF20VQMeEVvOdhQtNRfP5Wd0UH9_ZZxjHb_8DLfQfM/exec'; // Paste your Google Apps Script URL here
 
 const initContactForm = () => {
     const contactForm = document.querySelector('.contact-form');
