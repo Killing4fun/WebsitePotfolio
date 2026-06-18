@@ -382,6 +382,20 @@ const initContactForm = () => {
         }
     });
 };
+
+const showFormAlert = (form, type, message) => {
+    let box = form.parentNode.querySelector('.form-alert');
+    if (!box) {
+        box = document.createElement('div');
+        box.className = 'form-alert';
+        form.parentNode.insertBefore(box, form);
+    }
+    box.className = `form-alert ${type}`;
+    box.textContent = message;
+    box.style.display = 'block';
+    setTimeout(() => { box.style.display = 'none'; }, 6000);
+};
+
 // ==================== AJAX Routing Engine ====================
 const runPageInitializers = (pathname, hash) => {
     const filename = pathname.split('/').pop() || 'index.html';
