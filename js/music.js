@@ -1,45 +1,42 @@
 // ==================== Premium Music Player Logic ====================
-// State is persisted in sessionStorage so music continues across page loads.
-// Tracks array is loaded from playlist.js (window.tracks)
-
 // ── Restore persisted state ──────────────────────────────────────────────────
 let currentIndex = parseInt(sessionStorage.getItem('mp_index') || '0', 10);
-let isPlaying     = sessionStorage.getItem('mp_playing') === 'true';
-let loopMode      = parseInt(sessionStorage.getItem('mp_loop') || '0', 10);
-let savedTime     = parseFloat(sessionStorage.getItem('mp_time') || '0');
+let isPlaying = sessionStorage.getItem('mp_playing') === 'true';
+let loopMode = parseInt(sessionStorage.getItem('mp_loop') || '0', 10);
+let savedTime = parseFloat(sessionStorage.getItem('mp_time') || '0');
 
 // Safety bounds check
 if (currentIndex >= tracks.length || currentIndex < 0) currentIndex = 0;
 
 // ── DOM Elements ─────────────────────────────────────────────────────────────
-const audio             = document.getElementById('bg-music');
-const discTrigger       = document.getElementById('music-disc-trigger');
-const discFace          = document.getElementById('disc-face');
-const discAlbumArt      = document.getElementById('disc-album-art');
-const cardPanel         = document.getElementById('music-card-panel');
-const closeBtn          = document.getElementById('music-close-btn');
-const playPauseBtn      = document.getElementById('ctrl-play-pause');
-const playIcon          = playPauseBtn.querySelector('.play-icon');
-const pauseIcon         = playPauseBtn.querySelector('.pause-icon');
-const prevBtn           = document.getElementById('ctrl-prev');
-const nextBtn           = document.getElementById('ctrl-next');
-const loopBtn           = document.getElementById('ctrl-loop');
-const volumeSlider      = document.getElementById('volume-slider');
-const panelAlbumArt     = document.getElementById('panel-album-art');
-const songTitleDisplay  = document.getElementById('song-title-display');
+const audio = document.getElementById('bg-music');
+const discTrigger = document.getElementById('music-disc-trigger');
+const discFace = document.getElementById('disc-face');
+const discAlbumArt = document.getElementById('disc-album-art');
+const cardPanel = document.getElementById('music-card-panel');
+const closeBtn = document.getElementById('music-close-btn');
+const playPauseBtn = document.getElementById('ctrl-play-pause');
+const playIcon = playPauseBtn.querySelector('.play-icon');
+const pauseIcon = playPauseBtn.querySelector('.pause-icon');
+const prevBtn = document.getElementById('ctrl-prev');
+const nextBtn = document.getElementById('ctrl-next');
+const loopBtn = document.getElementById('ctrl-loop');
+const volumeSlider = document.getElementById('volume-slider');
+const panelAlbumArt = document.getElementById('panel-album-art');
+const songTitleDisplay = document.getElementById('song-title-display');
 const songArtistDisplay = document.getElementById('song-artist-display');
-const miniVisualizer    = document.getElementById('mini-visualizer');
-const panelVisualizer   = document.getElementById('panel-visualizer');
-const playlistList      = document.getElementById('playlist-list');
-const sideVisLeft       = document.getElementById('side-vis-bars-left');
-const sideVisRight      = document.getElementById('side-vis-bars-right');
+const miniVisualizer = document.getElementById('mini-visualizer');
+const panelVisualizer = document.getElementById('panel-visualizer');
+const playlistList = document.getElementById('playlist-list');
+const sideVisLeft = document.getElementById('side-vis-bars-left');
+const sideVisRight = document.getElementById('side-vis-bars-right');
 
 // ── Persist state on page unload ─────────────────────────────────────────────
 window.addEventListener('pagehide', () => {
-    sessionStorage.setItem('mp_index',   currentIndex);
+    sessionStorage.setItem('mp_index', currentIndex);
     sessionStorage.setItem('mp_playing', isPlaying);
-    sessionStorage.setItem('mp_loop',    loopMode);
-    sessionStorage.setItem('mp_time',    audio.currentTime || 0);
+    sessionStorage.setItem('mp_loop', loopMode);
+    sessionStorage.setItem('mp_time', audio.currentTime || 0);
 });
 
 // Also persist periodically while playing so seekbar is accurate
@@ -50,18 +47,18 @@ setInterval(() => {
 }, 1000);
 
 // ── Web Audio API ─────────────────────────────────────────────────────────────
-let audioContext     = null;
-let analyser         = null;
-let audioSource      = null;
-let sideVisAnimId    = null;
-let simVisAnimId     = null;
+let audioContext = null;
+let analyser = null;
+let audioSource = null;
+let sideVisAnimId = null;
+let simVisAnimId = null;
 let audioContextReady = false;
 
 const SIDE_BAR_COUNT = 40;
 
 // ── Build side bars (horizontal) ─────────────────────────────────────────────
 const buildSideBars = () => {
-    sideVisLeft.innerHTML  = '';
+    sideVisLeft.innerHTML = '';
     sideVisRight.innerHTML = '';
     for (let i = 0; i < SIDE_BAR_COUNT; i++) {
         const barL = document.createElement('div');
@@ -102,14 +99,14 @@ const initAudioContext = () => {
 
 const resumeAudioContext = async () => {
     if (audioContext && audioContext.state === 'suspended') {
-        try { await audioContext.resume(); } catch (e) {}
+        try { await audioContext.resume(); } catch (e) { }
     }
 };
 
 // ── Simulated visualizer (wave animation when no real analyser) ───────────────
 const startSimulatedSideVis = () => {
     if (simVisAnimId) return;
-    const leftBars  = Array.from(sideVisLeft.querySelectorAll('.sv-bar'));
+    const leftBars = Array.from(sideVisLeft.querySelectorAll('.sv-bar'));
     const rightBars = Array.from(sideVisRight.querySelectorAll('.sv-bar'));
     let phase = 0;
 
@@ -141,8 +138,8 @@ const startSimulatedSideVis = () => {
             const pct = Math.min(100, Math.max(4, val * 100));
             bar.style.width = pct + '%';
             const l = 35 + (pct / 100) * 25;
-            bar.style.background  = `hsl(0,100%,${l}%)`;
-            bar.style.boxShadow   = pct > 75 ? `0 0 6px hsl(0,100%,${l}%)` : 'none';
+            bar.style.background = `hsl(0,100%,${l}%)`;
+            bar.style.boxShadow = pct > 75 ? `0 0 6px hsl(0,100%,${l}%)` : 'none';
         });
 
         rightBars.forEach((bar, i) => {
@@ -161,8 +158,8 @@ const startSimulatedSideVis = () => {
             const pct = Math.min(100, Math.max(4, val * 100));
             bar.style.width = pct + '%';
             const l = 35 + (pct / 100) * 25;
-            bar.style.background  = `hsl(0,100%,${l}%)`;
-            bar.style.boxShadow   = pct > 75 ? `0 0 6px hsl(0,100%,${l}%)` : 'none';
+            bar.style.background = `hsl(0,100%,${l}%)`;
+            bar.style.boxShadow = pct > 75 ? `0 0 6px hsl(0,100%,${l}%)` : 'none';
         });
     };
     draw();
@@ -177,11 +174,11 @@ const startSideVis = () => {
     if (sideVisAnimId || simVisAnimId) return;
     if (!analyser) { startSimulatedSideVis(); return; }
 
-    const leftBars   = Array.from(sideVisLeft.querySelectorAll('.sv-bar'));
-    const rightBars  = Array.from(sideVisRight.querySelectorAll('.sv-bar'));
-    const bufLen     = analyser.frequencyBinCount; // 128 (fftSize = 256)
-    const dataArray  = new Uint8Array(bufLen);
-    const step       = Math.max(1, Math.floor(bufLen / SIDE_BAR_COUNT)); // 128 / 40 = 3
+    const leftBars = Array.from(sideVisLeft.querySelectorAll('.sv-bar'));
+    const rightBars = Array.from(sideVisRight.querySelectorAll('.sv-bar'));
+    const bufLen = analyser.frequencyBinCount; // 128 (fftSize = 256)
+    const dataArray = new Uint8Array(bufLen);
+    const step = Math.max(1, Math.floor(bufLen / SIDE_BAR_COUNT)); // 128 / 40 = 3
 
     const draw = () => {
         sideVisAnimId = requestAnimationFrame(draw);
@@ -190,22 +187,22 @@ const startSideVis = () => {
         // Symmetric mapping: Bass is at the bottom (mi = 0, index = 39)
         // and Treble is at the top (mi = 39, index = 0)
         leftBars.forEach((bar, i) => {
-            const mi  = (SIDE_BAR_COUNT - 1 - i) * step;
-            const v   = dataArray[mi] || 0;
+            const mi = (SIDE_BAR_COUNT - 1 - i) * step;
+            const v = dataArray[mi] || 0;
             const pct = Math.max(4, (v / 255) * 100);
             bar.style.width = pct + '%';
             const l = 35 + (v / 255) * 25;
             bar.style.background = `hsl(0,100%,${l}%)`;
-            bar.style.boxShadow  = v > 100 ? `0 0 6px hsl(0,100%,${l}%)` : 'none';
+            bar.style.boxShadow = v > 100 ? `0 0 6px hsl(0,100%,${l}%)` : 'none';
         });
         rightBars.forEach((bar, i) => {
-            const mi  = (SIDE_BAR_COUNT - 1 - i) * step;
-            const v   = dataArray[mi] || 0;
+            const mi = (SIDE_BAR_COUNT - 1 - i) * step;
+            const v = dataArray[mi] || 0;
             const pct = Math.max(4, (v / 255) * 100);
             bar.style.width = pct + '%';
             const l = 35 + (v / 255) * 25;
             bar.style.background = `hsl(0,100%,${l}%)`;
-            bar.style.boxShadow  = v > 100 ? `0 0 6px hsl(0,100%,${l}%)` : 'none';
+            bar.style.boxShadow = v > 100 ? `0 0 6px hsl(0,100%,${l}%)` : 'none';
         });
     };
     draw();
@@ -215,9 +212,9 @@ const stopSideVis = () => {
     if (sideVisAnimId) { cancelAnimationFrame(sideVisAnimId); sideVisAnimId = null; }
     stopSimulatedSideVis();
     document.querySelectorAll('.sv-bar').forEach(bar => {
-        bar.style.width      = '4%';
+        bar.style.width = '4%';
         bar.style.background = 'rgba(179,0,0,0.3)';
-        bar.style.boxShadow  = 'none';
+        bar.style.boxShadow = 'none';
     });
 };
 
@@ -278,13 +275,13 @@ const loadTrack = (index) => {
     const track = tracks[index];
     audio.src = track.src;
 
-    discAlbumArt.src  = track.cover || '';
+    discAlbumArt.src = track.cover || '';
     panelAlbumArt.src = track.cover || '';
-    songTitleDisplay.textContent  = track.title;
+    songTitleDisplay.textContent = track.title;
     if (songArtistDisplay) songArtistDisplay.textContent = track.artist;
 
     sessionStorage.setItem('mp_index', index);
-    sessionStorage.setItem('mp_time',  0);
+    sessionStorage.setItem('mp_time', 0);
 };
 
 // ── Play / Pause ──────────────────────────────────────────────────────────────
@@ -360,24 +357,24 @@ const handleTrackEnd = () => {
 
 // ── Update UI ─────────────────────────────────────────────────────────────────
 const updateUI = (playing) => {
-    const sideLeft  = document.getElementById('side-visualizer-left');
+    const sideLeft = document.getElementById('side-visualizer-left');
     const sideRight = document.getElementById('side-visualizer-right');
 
     if (playing) {
-        playIcon.style.display  = 'none';
+        playIcon.style.display = 'none';
         pauseIcon.style.display = 'block';
         discFace.classList.add('playing');
         miniVisualizer.classList.add('active');
         panelVisualizer.classList.add('active');
-        if (sideLeft)  sideLeft.classList.add('active');
+        if (sideLeft) sideLeft.classList.add('active');
         if (sideRight) sideRight.classList.add('active');
     } else {
-        playIcon.style.display  = 'block';
+        playIcon.style.display = 'block';
         pauseIcon.style.display = 'none';
         discFace.classList.remove('playing');
         miniVisualizer.classList.remove('active');
         panelVisualizer.classList.remove('active');
-        if (sideLeft)  sideLeft.classList.remove('active');
+        if (sideLeft) sideLeft.classList.remove('active');
         if (sideRight) sideRight.classList.remove('active');
         stopSideVis();
     }
@@ -391,14 +388,14 @@ const toggleControlsPanel = () => cardPanel.classList.toggle('active');
 const playOnFirstInteraction = () => playTrack();
 
 const addInteractionListeners = () => {
-    document.addEventListener('click',      playOnFirstInteraction, { once: true });
-    document.addEventListener('keydown',    playOnFirstInteraction, { once: true });
+    document.addEventListener('click', playOnFirstInteraction, { once: true });
+    document.addEventListener('keydown', playOnFirstInteraction, { once: true });
     document.addEventListener('touchstart', playOnFirstInteraction, { once: true });
 };
 
 const removeInteractionListeners = () => {
-    document.removeEventListener('click',      playOnFirstInteraction);
-    document.removeEventListener('keydown',    playOnFirstInteraction);
+    document.removeEventListener('click', playOnFirstInteraction);
+    document.removeEventListener('keydown', playOnFirstInteraction);
     document.removeEventListener('touchstart', playOnFirstInteraction);
 };
 
@@ -424,9 +421,9 @@ const initPlayer = () => {
     // Load the track that was playing before navigation
     const track = tracks[currentIndex];
     audio.src = track.src;
-    discAlbumArt.src  = track.cover || '';
+    discAlbumArt.src = track.cover || '';
     panelAlbumArt.src = track.cover || '';
-    songTitleDisplay.textContent  = track.title;
+    songTitleDisplay.textContent = track.title;
     if (songArtistDisplay) songArtistDisplay.textContent = track.artist;
 
     // Restore volume
@@ -464,7 +461,7 @@ const initPlayer = () => {
     const onCanPlay = () => {
         audio.removeEventListener('canplay', onCanPlay);
         if (savedTime > 0) {
-            try { audio.currentTime = savedTime; } catch(e) {}
+            try { audio.currentTime = savedTime; } catch (e) { }
         }
         if (isPlaying) {
             attemptAutoplay();

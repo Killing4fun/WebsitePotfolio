@@ -1,5 +1,4 @@
 // ==================== Shared Music Player + Side Visualizer Injector ====================
-// Injects the floating music player and side visualizer bars into every page.
 
 (function () {
     const playerHTML = `

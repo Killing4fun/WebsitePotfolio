@@ -203,13 +203,17 @@ const observer = new IntersectionObserver(function (entries) {
 }, observerOptions);
 
 // ==================== Gallery Lightbox ====================
+// Updated lightbox functions with YouTube-style design
 let lightboxIndex = 0;
+let lightboxSubIndex = 0; // which page/photo within a grouped item is showing
 
-const getGalleryList = () => {
-    return window.galleryItems || [];
-};
+// Returns the full gallery items array (indices must match gallery.js's render order)
+const getGalleryList = () => (window.galleryItems || []);
 
-const openLightbox = (index) => {
+// Uses gallery.js's normalizer so both files agree on what counts as a "group"
+const getItemGroupImages = (item) => (typeof window.getGroupImages === 'function' ? window.getGroupImages(item) : null);
+
+const openLightbox = (index, subIndex = 0) => {
     const modal = document.getElementById('lightbox-modal');
     if (!modal) return;
 
@@ -218,46 +222,318 @@ const openLightbox = (index) => {
 
     lightboxIndex = index;
     const item = items[index];
+    const groupImages = getItemGroupImages(item);
+    lightboxSubIndex = groupImages ? Math.max(0, Math.min(subIndex, groupImages.length - 1)) : 0;
 
     const title = document.getElementById('lightbox-title');
     const img = document.getElementById('lightbox-img');
-    let video = document.getElementById('lightbox-video');
+    const counter = document.getElementById('lightbox-counter');
+    const inner = document.querySelector('.lightbox-inner');
 
-    if (title) title.textContent = item.title || '';
-
-    if (item.type === 'video') {
+    // ── YouTube embed (real YouTube player chrome, like deltarune.com) ──
+    if (item.type === 'youtube') {
         if (img) img.style.display = 'none';
 
-        if (!video) {
-            video = document.createElement('video');
-            video.id = 'lightbox-video';
-            video.controls = true;
-            video.autoplay = true;
-            video.style.maxWidth = '100%';
-            video.style.maxHeight = '75vh';
-            video.style.borderRadius = '10px';
-            video.style.boxShadow = '0 0 50px rgba(var(--accent-rgb), 0.25)';
-            img.parentNode.insertBefore(video, img);
+        const oldVideoContainer = document.getElementById('video-container');
+        if (oldVideoContainer) oldVideoContainer.style.display = 'none';
+
+        let ytContainer = document.getElementById('youtube-container');
+        if (!ytContainer) {
+            ytContainer = document.createElement('div');
+            ytContainer.id = 'youtube-container';
+            ytContainer.className = 'youtube-container';
+
+            const iframe = document.createElement('iframe');
+            iframe.id = 'youtube-iframe';
+            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+            iframe.allowFullscreen = true;
+            iframe.frameBorder = '0';
+            iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+
+            ytContainer.appendChild(iframe);
+            if (inner) inner.insertBefore(ytContainer, img);
         }
 
-        video.src = item.src;
-        video.style.display = 'block';
-        video.play().catch(e => console.log('Video play error:', e));
-    } else {
-        if (video) {
-            video.pause();
-            video.style.display = 'none';
+        ytContainer.style.display = 'block';
+        document.getElementById('youtube-iframe').src =
+            `https://www.youtube-nocookie.com/embed/${item.videoId}?autoplay=1&rel=0`;
+
+        if (counter) counter.style.display = 'none';
+        if (title) title.textContent = item.title || 'Untitled';
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        return;
+    }
+
+    // ── Native mp4 / image handling below ──
+    const ytContainerExisting = document.getElementById('youtube-container');
+    if (ytContainerExisting) {
+        ytContainerExisting.style.display = 'none';
+        const ytIframeExisting = document.getElementById('youtube-iframe');
+        if (ytIframeExisting) ytIframeExisting.src = '';
+    }
+
+    let videoContainer = document.getElementById('video-container');
+
+    // Build the video player UI
+    if (item.type === 'video') {
+        // Hide image
+        if (img) img.style.display = 'none';
+
+        // Check if video container exists, if not create it
+        if (!videoContainer) {
+            videoContainer = document.createElement('div');
+            videoContainer.id = 'video-container';
+            videoContainer.className = 'video-container';
+
+            // Video element
+            const video = document.createElement('video');
+            video.id = 'lightbox-video';
+            video.preload = 'metadata';
+            video.playsInline = true;
+            video.style.width = '100%';
+            video.style.height = '100%';
+            video.style.display = 'block';
+
+            // Play overlay (big play button)
+            const playOverlay = document.createElement('div');
+            playOverlay.className = 'play-overlay';
+            playOverlay.innerHTML = `
+                <svg viewBox="0 0 24 24">
+                    <polygon points="5,3 19,12 5,21" />
+                </svg>
+            `;
+
+            // Controls overlay
+            const controlsOverlay = document.createElement('div');
+            controlsOverlay.className = 'video-controls-overlay';
+            controlsOverlay.innerHTML = `
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:16px;margin-top:8px;color:#fff;font-size:13px;">
+                    <span id="current-time">0:00</span>
+                    <span style="color:#aaa;">/</span>
+                    <span id="duration">0:00</span>
+                    <button id="play-pause-btn" style="background:none;border:none;color:#fff;cursor:pointer;font-size:18px;margin-left:auto;">▶</button>
+                    <button id="mute-btn" style="background:none;border:none;color:#fff;cursor:pointer;font-size:16px;">🔊</button>
+                    <button id="fullscreen-btn" style="background:none;border:none;color:#fff;cursor:pointer;font-size:16px;">⛶</button>
+                </div>
+            `;
+
+            // Video end overlay
+            const endOverlay = document.createElement('div');
+            endOverlay.className = 'video-end-overlay';
+            endOverlay.innerHTML = `
+                <h3 style="font-size:22px;margin-bottom:8px;">▶️ Watch Again</h3>
+                <p style="color:#aaa;font-size:14px;">Replay this video</p>
+                <button class="replay-btn" id="replay-btn">↻ Replay</button>
+            `;
+
+            videoContainer.appendChild(video);
+            videoContainer.appendChild(playOverlay);
+            videoContainer.appendChild(controlsOverlay);
+            videoContainer.appendChild(endOverlay);
+
+            // Insert after title bar or at beginning
+            const titleBar = inner.querySelector('.video-title-bar');
+            if (titleBar) {
+                titleBar.after(videoContainer);
+            } else {
+                inner.prepend(videoContainer);
+            }
         }
+
+        const video = document.getElementById('lightbox-video');
+        const playOverlay = videoContainer.querySelector('.play-overlay');
+        const controlsOverlay = videoContainer.querySelector('.video-controls-overlay');
+        const endOverlay = videoContainer.querySelector('.video-end-overlay');
+
+        // Set video source and play
+        video.src = item.src;
+        video.load();
+        video.play().catch(e => console.log('Video play error:', e));
+
+        // Show play overlay initially, hide on play
+        playOverlay.style.display = 'flex';
+
+        // Show controls on hover
+        videoContainer.addEventListener('mouseenter', () => {
+            controlsOverlay.style.opacity = '1';
+            controlsOverlay.style.pointerEvents = 'auto';
+        });
+
+        videoContainer.addEventListener('mouseleave', () => {
+            if (!video.paused) {
+                controlsOverlay.style.opacity = '0';
+                controlsOverlay.style.pointerEvents = 'none';
+            }
+        });
+
+        // Play/Pause toggle
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        if (playPauseBtn) {
+            playPauseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (video.paused) {
+                    video.play();
+                    playPauseBtn.textContent = '⏸';
+                    playOverlay.style.display = 'none';
+                } else {
+                    video.pause();
+                    playPauseBtn.textContent = '▶';
+                    playOverlay.style.display = 'flex';
+                }
+            });
+        }
+
+        // Click on video to toggle play/pause
+        video.addEventListener('click', () => {
+            if (video.paused) {
+                video.play();
+                if (playPauseBtn) playPauseBtn.textContent = '⏸';
+                playOverlay.style.display = 'none';
+            } else {
+                video.pause();
+                if (playPauseBtn) playPauseBtn.textContent = '▶';
+                playOverlay.style.display = 'flex';
+            }
+        });
+
+        // Click on play overlay to play
+        if (playOverlay) {
+            playOverlay.addEventListener('click', (e) => {
+                e.stopPropagation();
+                video.play();
+                playOverlay.style.display = 'none';
+                if (playPauseBtn) playPauseBtn.textContent = '⏸';
+                controlsOverlay.style.opacity = '1';
+                controlsOverlay.style.pointerEvents = 'auto';
+                setTimeout(() => {
+                    controlsOverlay.style.opacity = '0';
+                    controlsOverlay.style.pointerEvents = 'none';
+                }, 3000);
+            });
+        }
+
+        // Update progress bar
+        const progressFill = document.getElementById('progress-fill');
+        const currentTimeEl = document.getElementById('current-time');
+        const durationEl = document.getElementById('duration');
+
+        video.addEventListener('timeupdate', () => {
+            if (video.duration) {
+                const percent = (video.currentTime / video.duration) * 100;
+                if (progressFill) progressFill.style.width = percent + '%';
+                if (currentTimeEl) {
+                    const mins = Math.floor(video.currentTime / 60);
+                    const secs = Math.floor(video.currentTime % 60);
+                    currentTimeEl.textContent = mins + ':' + (secs < 10 ? '0' : '') + secs;
+                }
+            }
+        });
+
+        video.addEventListener('loadedmetadata', () => {
+            if (durationEl) {
+                const mins = Math.floor(video.duration / 60);
+                const secs = Math.floor(video.duration % 60);
+                durationEl.textContent = mins + ':' + (secs < 10 ? '0' : '') + secs;
+            }
+        });
+
+        // Video end
+        video.addEventListener('ended', () => {
+            if (playPauseBtn) playPauseBtn.textContent = '▶';
+            if (playOverlay) playOverlay.style.display = 'flex';
+            if (endOverlay) endOverlay.classList.add('show');
+        });
+
+        // Replay button
+        const replayBtn = document.getElementById('replay-btn');
+        if (replayBtn) {
+            replayBtn.addEventListener('click', () => {
+                video.currentTime = 0;
+                video.play();
+                if (endOverlay) endOverlay.classList.remove('show');
+                if (playOverlay) playOverlay.style.display = 'none';
+                if (playPauseBtn) playPauseBtn.textContent = '⏸';
+            });
+        }
+
+        // Mute toggle
+        const muteBtn = document.getElementById('mute-btn');
+        if (muteBtn) {
+            muteBtn.addEventListener('click', () => {
+                video.muted = !video.muted;
+                muteBtn.textContent = video.muted ? '🔇' : '🔊';
+            });
+        }
+
+        // Fullscreen
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        if (fullscreenBtn) {
+            fullscreenBtn.addEventListener('click', () => {
+                if (videoContainer.requestFullscreen) {
+                    videoContainer.requestFullscreen();
+                }
+            });
+        }
+
+        // Progress bar click to seek
+        const progressBar = document.querySelector('.progress-bar');
+        if (progressBar) {
+            progressBar.addEventListener('click', (e) => {
+                const rect = progressBar.getBoundingClientRect();
+                const pos = (e.clientX - rect.left) / rect.width;
+                if (video.duration) {
+                    video.currentTime = pos * video.duration;
+                }
+            });
+        }
+
+        videoContainer.style.display = 'block';
+        if (counter) counter.style.display = 'none';
+
+    } else {
+        // Image handling (single image OR a grouped multi-image item)
+        const videoContainer = document.getElementById('video-container');
+        if (videoContainer) videoContainer.style.display = 'none';
+
+        if (groupImages) {
+            const page = groupImages[lightboxSubIndex];
+            if (img) {
+                img.src = page.src;
+                img.style.display = 'block';
+            }
+            if (counter) {
+                counter.style.display = 'inline-block';
+                counter.textContent = `${lightboxSubIndex + 1} / ${groupImages.length}`;
+            }
+            if (title) {
+                title.textContent = page.title || item.title || 'Untitled';
+            }
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            return;
+        }
+
         if (img) {
             img.src = item.src;
             img.style.display = 'block';
         }
+        if (counter) counter.style.display = 'none';
+    }
+
+    // Update title
+    if (title) {
+        title.textContent = item.title || 'Untitled';
     }
 
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 };
 
+// Updated close function
 const closeLightbox = () => {
     const modal = document.getElementById('lightbox-modal');
     if (!modal) return;
@@ -270,81 +546,89 @@ const closeLightbox = () => {
         video.pause();
         video.src = '';
     }
+
+    const ytIframe = document.getElementById('youtube-iframe');
+    if (ytIframe) ytIframe.src = '';
+
+    // Reset overlays
+    const endOverlay = document.querySelector('.video-end-overlay');
+    if (endOverlay) endOverlay.classList.remove('show');
 };
 
-const lightboxNext = () => {
+const showNextLightboxItem = () => {
     const items = getGalleryList();
     if (!items.length) return;
-    lightboxIndex = (lightboxIndex + 1) % items.length;
-    openLightbox(lightboxIndex);
-};
 
-const lightboxPrev = () => {
-    const items = getGalleryList();
-    if (!items.length) return;
-    lightboxIndex = (lightboxIndex - 1 + items.length) % items.length;
-    openLightbox(lightboxIndex);
-};
-
-// Event delegation for lightbox clicks
-document.addEventListener('click', (e) => {
-    if (e.target.closest('#lightbox-close')) {
-        closeLightbox();
-    } else if (e.target.closest('#lightbox-next')) {
-        lightboxNext();
-    } else if (e.target.closest('#lightbox-prev')) {
-        lightboxPrev();
-    } else if (e.target.id === 'lightbox-modal') {
-        closeLightbox();
+    const item = items[lightboxIndex];
+    const groupImages = getItemGroupImages(item);
+    if (groupImages && lightboxSubIndex < groupImages.length - 1) {
+        openLightbox(lightboxIndex, lightboxSubIndex + 1);
+        return;
     }
-});
 
-document.addEventListener('keydown', (e) => {
+    const nextIndex = (lightboxIndex + 1) % items.length;
+    openLightbox(nextIndex, 0);
+};
+
+const showPrevLightboxItem = () => {
+    const items = getGalleryList();
+    if (!items.length) return;
+
+    const item = items[lightboxIndex];
+    const groupImages = getItemGroupImages(item);
+    if (groupImages && lightboxSubIndex > 0) {
+        openLightbox(lightboxIndex, lightboxSubIndex - 1);
+        return;
+    }
+
+    const prevIndex = (lightboxIndex - 1 + items.length) % items.length;
+    // Land on the previous card's LAST page — feels more natural than
+    // jumping straight to page 1 when stepping backwards.
+    const prevItem = items[prevIndex];
+    const prevGroupImages = getItemGroupImages(prevItem);
+    const prevSubIndex = prevGroupImages ? prevGroupImages.length - 1 : 0;
+    openLightbox(prevIndex, prevSubIndex);
+};
+
+// Wire up lightbox controls (close button, arrows, backdrop click, Escape key)
+const initLightboxControls = () => {
     const modal = document.getElementById('lightbox-modal');
-    if (!modal?.classList.contains('active')) return;
-    if (e.key === 'ArrowRight') lightboxNext();
-    if (e.key === 'ArrowLeft') lightboxPrev();
-    if (e.key === 'Escape') closeLightbox();
-});
+    const closeBtn = document.getElementById('lightbox-close');
+    const prevBtn = document.getElementById('lightbox-prev');
+    const nextBtn = document.getElementById('lightbox-next');
+    const inner = document.querySelector('.lightbox-inner');
+    if (!modal) return;
 
-// Build gallery clickable items (fallback for static layouts)
-const buildGallery = () => {
-    const cards = document.querySelectorAll('.gallery-card');
-    if (!cards.length) return;
+    if (closeBtn) closeBtn.addEventListener('click', closeLightbox);
+    if (prevBtn) prevBtn.addEventListener('click', showPrevLightboxItem);
+    if (nextBtn) nextBtn.addEventListener('click', showNextLightboxItem);
 
-    // If dynamic gallery is not used, populate items array from DOM
-    if (!window.galleryItems || window.galleryItems.length === 0) {
-        window.galleryItems = [];
-        cards.forEach((card, i) => {
-            const img = card.querySelector('img');
-            const video = card.querySelector('video');
-            const title = card.querySelector('.gallery-caption')?.textContent || '';
-            const type = video ? 'video' : 'image';
-            const src = type === 'video' ? video.src : (img ? img.src : '');
-            window.galleryItems.push({ title, src, type, category: card.dataset.category || 'all' });
+    // Click outside the media (on the dark backdrop) closes the lightbox
+    modal.addEventListener('click', (e) => {
+        if (inner && !inner.contains(e.target) && e.target !== closeBtn && e.target !== prevBtn && e.target !== nextBtn) {
+            closeLightbox();
+        }
+    });
 
-            card.addEventListener('click', () => openLightbox(i));
+    // Keyboard shortcuts (bind once globally, not per page-load):
+    // Escape closes, Left/Right flips through pages/cards
+    if (!window.__lightboxEscapeBound) {
+        document.addEventListener('keydown', (e) => {
+            const m = document.getElementById('lightbox-modal');
+            if (!m || !m.classList.contains('active')) return;
+
+            if (e.key === 'Escape') {
+                closeLightbox();
+            } else if (e.key === 'ArrowRight') {
+                showNextLightboxItem();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevLightboxItem();
+            }
         });
+        window.__lightboxEscapeBound = true;
     }
 };
-
-// Gallery Filter
-const setupGalleryFilter = () => {
-    const filterBtns = document.querySelectorAll('.gallery-filter-btn');
-    const allCards = document.querySelectorAll('.gallery-card');
-
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            filterBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const cat = btn.dataset.filter;
-            allCards.forEach(card => {
-                card.style.display = (cat === 'all' || card.dataset.category === cat)
-                    ? 'inline-block' : 'none';
-            });
-        });
-    });
-};
+document.addEventListener('DOMContentLoaded', initLightboxControls);
 
 // ==================== Form Handling (Google Sheets Integration) ====================
 const GOOGLE_SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxqd8lmy5-lhRVd9IZZPLdWh3OCnE9oKd-9jmNlX3EIbSZwfDzrgYpsEVEYcO0pLUw/exec'; // Ensure this is your latest URL
@@ -356,19 +640,19 @@ const initContactForm = () => {
 
     contactForm.addEventListener('submit', async function (e) {
         e.preventDefault();
-        const submitBtn      = this.querySelector('button[type="submit"]');
-        const originalText   = submitBtn.textContent;
-        const nameVal        = this.querySelector('input[type="text"]').value.trim();
-        const emailVal       = this.querySelector('input[type="email"]').value.trim();
-        const msgVal         = this.querySelector('textarea').value.trim();
-        const formData       = { name: nameVal, email: emailVal, message: msgVal };
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        const nameVal = this.querySelector('input[type="text"]').value.trim();
+        const emailVal = this.querySelector('input[type="email"]').value.trim();
+        const msgVal = this.querySelector('textarea').value.trim();
+        const formData = { name: nameVal, email: emailVal, message: msgVal };
 
-        submitBtn.disabled  = true;
+        submitBtn.disabled = true;
         submitBtn.innerHTML = `<span class="btn-spinner"></span> Sending...`;
 
         if (!GOOGLE_SHEET_WEBAPP_URL) {
             setTimeout(() => {
-                submitBtn.disabled  = false;
+                submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
                 showFormAlert(contactForm, 'success', 'Demo mode: Add your Google Sheets URL in js/script.js to save messages!');
                 this.reset();
@@ -383,7 +667,7 @@ const initContactForm = () => {
                 body: JSON.stringify(formData)
             });
             const result = await response.json();
-            submitBtn.disabled  = false;
+            submitBtn.disabled = false;
             submitBtn.textContent = originalText;
             if (result.result === 'success') {
                 showFormAlert(contactForm, 'success', 'Message sent! I will get back to you soon.');
@@ -392,7 +676,7 @@ const initContactForm = () => {
                 showFormAlert(contactForm, 'error', 'Error: ' + (result.error || 'Unknown'));
             }
         } catch {
-            submitBtn.disabled  = false;
+            submitBtn.disabled = false;
             submitBtn.textContent = originalText;
             showFormAlert(contactForm, 'success', 'Message submitted! (Network note: check your Google Sheets setup)');
             this.reset();
@@ -466,7 +750,7 @@ const runPageInitializers = (pathname, hash) => {
         } else {
             buildGallery();
         }
-        setupGalleryFilter();
+        initLightboxControls();
     }
 
     // 4. Re-observe fade-in elements
@@ -577,6 +861,30 @@ window.addEventListener('popstate', async () => {
 document.addEventListener('DOMContentLoaded', () => {
     runPageInitializers(window.location.pathname, window.location.hash);
 });
+
+// ==================== Gallery Build/Filter Helpers ====================
+// gallery.js's renderGallery() is the actual card builder and calls this
+// as a post-render hook. Keep this a no-op stub to avoid re-triggering
+// renderGallery (which would cause infinite recursion).
+const buildGallery = () => { };
+
+// Wires up the "All / Magazine Covers / UI/UX Design" filter buttons
+const setupGalleryFilter = () => {
+    const filterBtns = document.querySelectorAll('.gallery-filter-btn');
+    if (!filterBtns.length) return;
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const filter = btn.dataset.filter;
+            document.querySelectorAll('.gallery-card').forEach(card => {
+                card.style.display = (filter === 'all' || card.dataset.category === filter) ? '' : 'none';
+            });
+        });
+    });
+};
 
 // Expose tools globally
 window.buildGallery = buildGallery;

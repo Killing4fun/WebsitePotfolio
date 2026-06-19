@@ -1,18 +1,4 @@
 // ==================== Projects List ====================
-// HOW TO ADD A PROJECT:
-// Copy one of the objects below, paste it at the end of the array (before the ]);
-// Fill in your details and it will automatically create a card on the page.
-//
-// Fields:
-//   title       - Project name
-//   description - Short description shown on the card
-//   tech        - Array of technology tags  e.g. ["HTML", "CSS", "JavaScript"]
-//   link        - URL to the live project or GitHub repo (use "#" if not ready)
-//   image       - (Optional) URL or local path to a preview image
-//   gradient    - CSS gradient shown when no image is provided
-//                 Pick one from the examples or make your own at:
-//                 https://uigradients.com
-// =====================================================
 
 const projects = [
     {
@@ -36,7 +22,7 @@ const projects = [
         description: "Personal responsive portfolio website built with clean vanilla HTML, CSS, and JS. Features a premium custom music player, an audio-reactive/simulated visualizer, dark/light mode, and separate sections for education, projects, and work experience.",
         tech: ["HTML", "CSS", "JavaScript"],
         link: "#",
-        image: "",
+        image: "images/Opera Snapshot_2026-06-20_020530.png",
         gradient: "linear-gradient(135deg, #880808 0%, #4a0000 100%)"
     }
 ];
