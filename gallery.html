@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <title>Gallery | Amirul Ehsan</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <script src="js/nav.js"></script>
 
@@ -24,11 +26,9 @@
                     Click on any card to view the asset in high resolution.
                 </p>
 
-                <!-- Gallery Filters -->
-                <div class="gallery-filters">
-                    <button class="gallery-filter-btn active" data-filter="all">All Assets</button>
-                    <button class="gallery-filter-btn" data-filter="magazine">Magazine Covers</button>
-                    <button class="gallery-filter-btn" data-filter="design">UI/UX Design</button>
+                <!-- Gallery Filters (buttons injected by gallery.js — add new tabs there) -->
+                <div class="gallery-filters" id="gallery-filters">
+                    <!-- Dynamically injected by gallery.js -->
                 </div>
 
                 <!-- Gallery Grid -->
@@ -45,6 +45,7 @@
             <button id="lightbox-next" class="lightbox-arrow" aria-label="Next image">&#10095;</button>
             <div class="lightbox-inner">
                 <img id="lightbox-img" src="" alt="Lightbox View">
+                <div id="lightbox-counter" class="lightbox-counter"></div>
                 <div id="lightbox-title" class="lightbox-title"></div>
             </div>
         </div>
@@ -65,4 +66,5 @@
     <script src="js/music.js"></script>
     <script src="js/script.js"></script>
 </body>
+
 </html>
