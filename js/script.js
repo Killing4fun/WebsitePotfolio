@@ -356,19 +356,19 @@ const initContactForm = () => {
 
     contactForm.addEventListener('submit', async function (e) {
         e.preventDefault();
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        const nameVal = this.querySelector('input[type="text"]').value.trim();
-        const emailVal = this.querySelector('input[type="email"]').value.trim();
-        const msgVal = this.querySelector('textarea').value.trim();
-        const formData = { name: nameVal, email: emailVal, message: msgVal };
+        const submitBtn      = this.querySelector('button[type="submit"]');
+        const originalText   = submitBtn.textContent;
+        const nameVal        = this.querySelector('input[type="text"]').value.trim();
+        const emailVal       = this.querySelector('input[type="email"]').value.trim();
+        const msgVal         = this.querySelector('textarea').value.trim();
+        const formData       = { name: nameVal, email: emailVal, message: msgVal };
 
-        submitBtn.disabled = true;
+        submitBtn.disabled  = true;
         submitBtn.innerHTML = `<span class="btn-spinner"></span> Sending...`;
 
         if (!GOOGLE_SHEET_WEBAPP_URL) {
             setTimeout(() => {
-                submitBtn.disabled = false;
+                submitBtn.disabled  = false;
                 submitBtn.textContent = originalText;
                 showFormAlert(contactForm, 'success', 'Demo mode: Add your Google Sheets URL in js/script.js to save messages!');
                 this.reset();
@@ -383,7 +383,7 @@ const initContactForm = () => {
                 body: JSON.stringify(formData)
             });
             const result = await response.json();
-            submitBtn.disabled = false;
+            submitBtn.disabled  = false;
             submitBtn.textContent = originalText;
             if (result.result === 'success') {
                 showFormAlert(contactForm, 'success', 'Message sent! I will get back to you soon.');
@@ -392,7 +392,7 @@ const initContactForm = () => {
                 showFormAlert(contactForm, 'error', 'Error: ' + (result.error || 'Unknown'));
             }
         } catch {
-            submitBtn.disabled = false;
+            submitBtn.disabled  = false;
             submitBtn.textContent = originalText;
             showFormAlert(contactForm, 'success', 'Message submitted! (Network note: check your Google Sheets setup)');
             this.reset();
@@ -400,6 +400,18 @@ const initContactForm = () => {
     });
 };
 
+const showFormAlert = (form, type, message) => {
+    let box = form.parentNode.querySelector('.form-alert');
+    if (!box) {
+        box = document.createElement('div');
+        box.className = 'form-alert';
+        form.parentNode.insertBefore(box, form);
+    }
+    box.className = `form-alert ${type}`;
+    box.textContent = message;
+    box.style.display = 'block';
+    setTimeout(() => { box.style.display = 'none'; }, 6000);
+};
 // ==================== AJAX Routing Engine ====================
 const runPageInitializers = (pathname, hash) => {
     const filename = pathname.split('/').pop() || 'index.html';
