@@ -121,7 +121,7 @@ body.menu-open {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.9rem 0;
+    padding: 0.9rem 20px;
 }
 
 .logo {
@@ -2001,6 +2001,32 @@ body.menu-open {
     object-fit: cover;
 }
 
+/* ── Timeline Mobile/Tablet Mode Center Layout ────────────────── */
+@media (max-width: 1024px) {
+    .timeline::before {
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+    }
+
+    .timeline-item {
+        width: 100% !important;
+        left: 0 !important;
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+        padding-top: 30px !important;
+        padding-bottom: 10px !important;
+        text-align: left !important;
+    }
+
+    .timeline-item::after {
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+        top: 8px !important;
+        bottom: auto !important;
+    }
+}
+
 /* ── Mobile Burger Menu ──────────────────────────────────────── */
 @media (max-width: 768px) {
     .burger-menu {
@@ -2070,48 +2096,7 @@ body.menu-open {
         gap: 2rem;
     }
 
-    .timeline-now {
-        text-align: left;
-        margin-left: 24px;
-        transform: translateX(-8px);
-        margin-bottom: 1.2rem;
-    }
 
-    .now-label {
-        display: inline-block;
-        margin-left: 10px;
-        margin-top: 0;
-        vertical-align: middle;
-    }
-
-    .now-dot {
-        display: inline-block;
-        vertical-align: middle;
-    }
-
-    .timeline::before {
-        left: 24px;
-        top: -16px;
-    }
-
-    .timeline::after {
-        left: 24px;
-        top: -10px;
-        transform: translateX(-50%);
-    }
-
-    .timeline-item {
-        width: 100%;
-        left: 0 !important;
-        padding-left: 60px !important;
-        padding-right: 0 !important;
-        text-align: left !important;
-    }
-
-    .timeline-item::after {
-        left: 16px !important;
-        right: auto !important;
-    }
 
     .projects-grid {
         grid-template-columns: 1fr;
