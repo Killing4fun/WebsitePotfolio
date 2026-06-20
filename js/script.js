@@ -685,15 +685,15 @@ const initContactForm = () => {
 };
 
 const showFormAlert = (form, type, message) => {
-    let box = form.parentNode.querySelector('.form-alert');
+    let box = form.querySelector('.form-alert');
     if (!box) {
         box = document.createElement('div');
         box.className = 'form-alert';
-        form.parentNode.insertBefore(box, form);
+        form.appendChild(box);
     }
     box.className = `form-alert ${type}`;
     box.textContent = message;
-    box.style.display = 'block';
+    box.style.display = '';
     setTimeout(() => { box.style.display = 'none'; }, 6000);
 };
 // ==================== AJAX Routing Engine ====================

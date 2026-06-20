@@ -1,11 +1,3 @@
-// ==================== Gallery Filter Tabs ====================
-// Filter tabs are now fully automatic: just give any galleryItems entry a
-// new "category" string and a tab appears for it, with a readable label
-// auto-generated from the id (e.g. "ui-mockups" -> "Ui Mockups").
-//
-// Only add a row here if you want a CUSTOM label instead of the
-// auto-generated one (e.g. force "UI/UX" instead of "Ui Ux").
-// ============================================================
 
 const galleryCategories = [
     { id: "all", label: "All Assets" },
@@ -13,41 +5,6 @@ const galleryCategories = [
     { id: "design", label: "UI/UX Design" }
     // { id: "video", label: "Video Demos" },
 ];
-
-// ==================== Gallery Items List ====================
-// HOW TO ADD A NEW MEDIA ASSET:
-// Copy one of the objects below and add it to the array.
-// The gallery grid will arrange them automatically in a masonry flow.
-//
-// Fields:
-//   title    - Caption shown on hover and in lightbox
-//   src      - Image file path or video file path (single-image/video items)
-//   category - must match an "id" in galleryCategories above
-//   type     - "image" | "video" | "youtube" | "group"
-//
-// HOW TO GROUP MULTIPLE IMAGES UNDER ONE CARD (e.g. a magazine with several
-// pages, or a set of related screenshots):
-//   Use "images" instead of "src" and list every page/photo. The card shows
-//   the first image as the cover with a stacked-pages badge ("1 / 4" etc).
-//   Clicking it opens the normal lightbox, and the lightbox arrows (or
-//   Left/Right arrow keys) flip through the pages before moving on to the
-//   next gallery card.
-//
-//   Each entry in "images" can be a plain string path, or an object
-//   { src: "...", title: "..." } if a page needs its own caption.
-//
-//   Example:
-//   {
-//       title: "Annual Report Magazine",
-//       category: "magazine",
-//       type: "group",
-//       images: [
-//           "images/report-cover.png",
-//           { src: "images/report-page2.png", title: "Inside Spread" },
-//           "images/report-page3.png"
-//       ]
-//   }
-// ============================================================
 
 const galleryItems = [
     {
@@ -57,19 +14,19 @@ const galleryItems = [
         type: "image"
     },
     {
-        title: "SeedOfLife Mobile App Interface",
-        src: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=800&fit=crop",
+        title: "SeedOfLife Mobile App Logo",
+        src: "images/LogoSeedOfLife.png",
         category: "design",
         type: "image"
     },
     {
         title: "Showtime Manager Desktop UI Layout",
-        src: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&h=500&fit=crop",
+        src: "images/ShowtimeManager.jpeg",
         category: "design",
         type: "image"
     },
     {
-        title: "SeedOfLife Urban App Demo Video",
+        title: "Mandarin Project Assignment",
         src: "https://www.youtube.com/watch?v=fwvtLHILbgs",
         videoId: "fwvtLHILbgs",
         category: "video",
@@ -95,6 +52,52 @@ const galleryItems = [
         category: "gallery",
         type: "image"
     },
+    {
+        title: "Project TechnoFeist",
+        src: "images/IMG-20251210-WA0127.jpg",
+        category: "gallery",
+        type: "image"
+    },
+    {
+        title: "Logo Assignment Digital",
+        src: "images/Magic Chorrus.png",
+        category: "desing",
+        type: "image"
+    },
+    {
+        title: "Volunteer Event Petronas Energy Asia",
+        src: "images/IMG-20250618-WA0049.jpg",
+        category: "gallery",
+        type: "image"
+    },
+    {
+        title: "Brochure Design Degree Assignment",
+        category: "magazine",
+        type: "group",
+        images: [
+            "images/brochure_Mesa1.png",
+            "images/brochure_Mesa2.png"
+        ]
+    },
+    {
+        title: "Hometown Sabah, Tawau",
+        category: "gallery",
+        type: "group",
+        images: [
+            "images/20250802_113830.jpg",
+            "images/20250802_113450.jpg"
+        ]
+    },
+    {
+        title: "Setup Firewall and Managing Network",
+        category: "gallery",
+        type: "group",
+        images: [
+            "images/IMG_20220815_201643.jpg",
+            "images/IMG_20220817_110608.jpg",
+            "images/IMG_20221017_131049.jpg"
+        ]
+    }
 ];
 
 // ==================== Group Helper ====================

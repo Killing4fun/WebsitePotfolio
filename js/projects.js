@@ -6,23 +6,23 @@ const projects = [
         description: "Contributed to building and enhancing an AI-powered mobile app for urban plant care in Malaysia. Features include tropical plant identification via PlantNet and Plant.id APIs, climate-adaptive care scheduling, community forums, and a GPS nursery locator.",
         tech: ["Flutter", "Firebase", "PlantNet API", "Plant.id API", "MySQL"],
         link: "#",
-        image: "",
+        image: "images/ShowtimeManager.jpeg",
         gradient: "linear-gradient(135deg, #1d976c 0%, #93f9b9 100%)"
     },
     {
         title: "Showtime Manager System",
         description: "Java desktop application for managing video content and creating broadcast schedules. Features a Gantt-style 24-hour drag-and-drop timeline, auto-reflow to eliminate gaps/overlaps, real-time search, and week navigation.",
-        tech: ["Java", "MySQL"],
+        tech: ["JavaScript", "MySQL"],
         link: "#",
-        image: "",
+        image: "images/ShowtimeManager.jpeg",
         gradient: "linear-gradient(135deg, #4f00bc 0%, #290060 100%)"
     },
     {
         title: "Portfolio Website",
         description: "Personal responsive portfolio website built with clean vanilla HTML, CSS, and JS. Features a premium custom music player, an audio-reactive/simulated visualizer, dark/light mode, and separate sections for education, projects, and work experience.",
         tech: ["HTML", "CSS", "JavaScript"],
-        link: "#",
-        image: "images/Opera Snapshot_2026-06-20_020530.png",
+        link: "https://github.com/Killing4fun/WebsitePotfolio",
+        image: "images/ProjectWebsitePortfolio.png",
         gradient: "linear-gradient(135deg, #880808 0%, #4a0000 100%)"
     }
 ];
