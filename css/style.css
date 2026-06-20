@@ -503,6 +503,8 @@ body.menu-open {
     background: currentColor;
     border-radius: 2px;
     margin: 0 auto;
+   margin-left: 50%;
+   margin-right: 50%;
     animation: scroll-bounce 1.5s ease infinite;
 }
 
