@@ -1104,10 +1104,9 @@ body.menu-open {
 }
 
 .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    align-items: start;
+    column-count: 3;
+    column-gap: 1.5rem;
+    display: block;
 }
 
 .gallery-card {
@@ -1118,6 +1117,10 @@ body.menu-open {
     background: var(--bg-card);
     border: 1px solid var(--border);
     transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    break-inside: avoid;
 }
 
 .gallery-card:hover {
@@ -2141,8 +2144,12 @@ body.menu-open {
     }
 
     .gallery-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
+        column-count: 2;
+        column-gap: 1rem;
+    }
+
+    .gallery-card {
+        margin-bottom: 1rem;
     }
 
     .certifications-grid {
@@ -2189,7 +2196,7 @@ body.menu-open {
     }
 
     .gallery-grid {
-        grid-template-columns: 1fr;
+        column-count: 1;
     }
 }
 
@@ -2213,7 +2220,7 @@ body.menu-open {
     }
 
     .gallery-grid {
-        grid-template-columns: repeat(3, 1fr);
+        column-count: 3;
     }
 }
 
@@ -2267,14 +2274,17 @@ body.menu-open {
 .gallery-video-preview {
     position: relative;
     width: 100%;
+    aspect-ratio: 16 / 9;
     overflow: hidden;
     display: block;
     background: #000;
 }
 
-.gallery-video-preview video {
+.gallery-video-preview video,
+.gallery-video-preview img {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
     display: block;
     transition: transform 0.4s ease;
 }
@@ -2510,7 +2520,77 @@ body.menu-open {
 }
 
 
-/* Light mode adjustments */
 :root.light-mode .hero-background::after {
     background: rgba(255, 255, 255, 0.3);
+}
+
+/* ── Tools Section ───────────────────────────────────────────── */
+.tools-section {
+    padding: 90px 0;
+    background-color: var(--bg-secondary);
+    border-top: 2px solid var(--border);
+    position: relative;
+    z-index: 10;
+}
+
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.2rem;
+    margin-top: 2.5rem;
+}
+
+.tool-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+
+.tool-item:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 8px 25px var(--shadow);
+}
+
+.tool-logo-wrapper {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.tool-logo-wrapper img,
+.tool-logo-wrapper svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.tool-logo-img {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+/* Invert github icon on dark mode to be visible */
+:root:not(.light-mode) .tool-logo-img[alt="GitHub"] {
+    filter: invert(1) brightness(1.5) drop-shadow(0 2px 4px rgba(255, 255, 255, 0.15));
+}
+
+.tool-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Light mode overrides for tools section */
+:root.light-mode .tools-section {
+    background-color: var(--bg-secondary);
+    border-top: 1px solid var(--border);
 }

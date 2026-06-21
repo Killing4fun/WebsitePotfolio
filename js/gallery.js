@@ -61,7 +61,7 @@ const galleryItems = [
     {
         title: "Logo Assignment Digital",
         src: "images/Magic Chorrus.png",
-        category: "desing",
+        category: "design",
         type: "image"
     },
     {

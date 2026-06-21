@@ -740,6 +740,9 @@ const runPageInitializers = (pathname, hash) => {
         if (typeof window.renderProjects === 'function') {
             window.renderProjects();
         }
+        if (typeof window.renderTools === 'function') {
+            window.renderTools();
+        }
     } else if (filename === 'certification.html') {
         if (typeof window.renderCertifications === 'function') {
             window.renderCertifications();
