@@ -112,7 +112,7 @@ const renderToolbox = () => {
 
     toolboxTools.forEach((tool, index) => {
         const card = document.createElement('div');
-        card.className = 'tool-card fade-in';
+        card.className = 'tool-card';
         card.style.animationDelay = `${index * 0.05}s`;
 
         const iconHtml = getToolIconHtml(tool.icon, tool.name);
