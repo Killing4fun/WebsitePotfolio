@@ -82,19 +82,13 @@ const tools = [
     { name: "Figma", iconSlug: "figma" },
     { name: "draw.io", iconSlug: "diagramsdotnet" },
     {
-        name: "Antigravity",
+        name: "Antigravity IDE",
         iconSlug: "antigravity",
         customSvg: `
-            <svg viewBox="0 0 24 24" class="custom-tool-icon" width="32" height="32" style="display: block;">
-                <defs>
-                    <linearGradient id="antiGravGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#ff3333" />
-                        <stop offset="100%" stop-color="#aa0000" />
-                    </linearGradient>
-                </defs>
-                <path d="M12 2L4 10L12 18L20 10Z" fill="url(#antiGravGrad)"/>
-                <ellipse cx="12" cy="18" rx="8" ry="2" fill="none" stroke="#ff3333" stroke-width="1.5" stroke-dasharray="3 3"/>
-                <ellipse cx="12" cy="21" rx="5" ry="1.2" fill="none" stroke="#ff3333" stroke-width="1" opacity="0.6"/>
+            <svg viewBox="0 0 24 24" class="custom-tool-icon" width="32" height="32" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;">
+                <path d="M12 2L4 10L12 18L20 10Z" fill="currentColor" fill-opacity="0.15"/>
+                <ellipse cx="12" cy="18" rx="8" ry="2" stroke-dasharray="3 3"/>
+                <ellipse cx="12" cy="21" rx="5" ry="1.2" opacity="0.6"/>
             </svg>
         `
     },
@@ -103,11 +97,22 @@ const tools = [
     { name: "Photoshop", iconSlug: "adobephotoshop" },
     { name: "Illustrator", iconSlug: "adobeillustrator" },
     { name: "Linux", iconSlug: "linux" },
-    { name: "NetBeans", iconSlug: "apachenetbeans" },
+    { name: "NetBeans", iconSlug: "apachenetbeanside" },
     { name: "Gemini", iconSlug: "googlegemini" },
     { name: "ChatGPT", iconSlug: "openai" },
     { name: "DeepSeek", iconSlug: "deepseek" },
-    { name: "Blackbox", iconSlug: "blackbox" },
+    {
+        name: "Blackbox AI",
+        iconSlug: "blackbox",
+        customSvg: `
+            <svg viewBox="0 0 24 24" class="custom-tool-icon" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;">
+                <rect x="2" y="2" width="20" height="20" rx="5" fill="currentColor" fill-opacity="0.08"/>
+                <path d="M8 8L4 12L8 16" stroke-width="2"/>
+                <path d="M16 8L20 12L16 16" stroke-width="2"/>
+                <line x1="13.5" y1="7" x2="10.5" y2="17" stroke-width="1.5"/>
+            </svg>
+        `
+    },
     { name: "Acrobat", iconSlug: "adobeacrobatreader" }
 ];
 
@@ -127,7 +132,7 @@ const renderTools = () => {
         if (tool.customSvg) {
             iconHTML = tool.customSvg;
         } else {
-            iconHTML = `<img src="https://cdn.simpleicons.org/${tool.iconSlug}" alt="${tool.name} Logo" loading="lazy">`;
+            iconHTML = `<img src="https://cdn.jsdelivr.net/npm/simple-icons/icons/${tool.iconSlug}.svg" alt="${tool.name} Logo" loading="lazy">`;
         }
 
         card.innerHTML = `

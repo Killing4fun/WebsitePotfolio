@@ -750,6 +750,17 @@ body.menu-open {
     width: 100%;
     height: 100%;
     object-fit: contain;
+    opacity: 0.85;
+    transition: filter var(--transition), opacity var(--transition), color var(--transition);
+}
+
+.tool-icon-wrapper svg {
+    color: var(--text-primary);
+}
+
+.tool-card:hover .tool-icon-wrapper img,
+.tool-card:hover .tool-icon-wrapper svg {
+    opacity: 1;
 }
 
 .tool-name {
@@ -758,18 +769,22 @@ body.menu-open {
     color: var(--text-primary);
 }
 
-/* Invert dark-colored brand SVGs in dark mode for high visibility */
-.tool-card img[src*="github"],
-.tool-card img[src*="linux"],
-.tool-card img[src*="blackbox"] {
+/* Style monochrome brand SVGs: clean off-white in dark mode, dark grey in light mode */
+.tool-icon-wrapper img {
+    filter: invert(1) brightness(2);
+}
+
+.tool-card:hover .tool-icon-wrapper img {
     filter: invert(1) brightness(2.5);
 }
 
-/* Revert inversion in light mode */
-:root.light-mode .tool-card img[src*="github"],
-:root.light-mode .tool-card img[src*="linux"],
-:root.light-mode .tool-card img[src*="blackbox"] {
-    filter: none;
+/* Revert to dark color in light mode */
+:root.light-mode .tool-icon-wrapper img {
+    filter: brightness(0.1);
+}
+
+:root.light-mode .tool-card:hover .tool-icon-wrapper img {
+    filter: brightness(0);
 }
 
 /* ── Contact Section ─────────────────────────────────────────── */
