@@ -97,6 +97,12 @@ const galleryItems = [
             "images/IMG_20220817_110608.jpg",
             "images/IMG_20221017_131049.jpg"
         ]
+    },
+    {
+        title: "UI interface SeedOfLife",
+        src: "images/home_dashboard.png",
+        category: "design",
+        type: "image"
     }
 ];
 
